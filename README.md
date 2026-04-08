@@ -204,3 +204,59 @@ Enable Audit Collection / Connect Gateway
 ```
 
                                                               **Aurora PostgreSQL onboarding into DSF Hub.**
+                                                            
+
+🏗️ Quick Architecture Recap
+```
+Aurora is a managed database, so you don’t install any DSF agent directly on the DB server. Instead:
+Aurora sends logs/events → AWS service (CloudWatch or Kinesis).
+DSF Agentless Gateway picks them up.
+Gateway forwards them to DSF Hub.
+DSF Hub shows the asset, applies policies, and runs analytics.
+```
+
+🔀 Two Ingestion Paths
+```
+Path A: CloudWatch Logs (simpler, cheaper)
+Aurora PostgreSQL logs go into a CloudWatch Log Group.
+DSF Gateway reads those logs and sends them to DSF Hub.
+Best when you just need audit logs (pgAudit, postgres logs) without much complexity.
+
+Path B: Kinesis / Database Activity Streams (real‑time, compliance‑grade)
+Aurora pushes detailed activity events into a Kinesis stream.
+DSF Gateway consumes the stream and forwards to DSF Hub.
+Best when you need strict compliance, near real‑time monitoring, or tamper‑resistant audit trails.
+⚠️ Note: Activity Streams can include full SQL text with sensitive values, so plan masking/retention carefully.
+```
+📋 Common Prerequisites
+```
+DSF side: DSF Hub running, Agentless Gateway deployed in AWS region/VPC, gateway ID handy.
+AWS side: Networking so Gateway can reach CloudWatch/Kinesis APIs, IAM permissions for log group read or Kinesis consume.
+🪵 Path A — CloudWatch Logs (Step‑by‑Step)
+Enable audit logging in Aurora PostgreSQL (pgAudit extension is recommended).
+Export Aurora logs to CloudWatch Logs.
+Verify CloudWatch Log Group exists and is receiving events.
+Give DSF Gateway read access to that log group (IAM role/policy).
+Add Aurora PostgreSQL asset in DSF Hub (fill in ARN, endpoint, port, gateway ID).
+Check Gateway service is running and logs show events flowing.
+
+⚡ Path B — Kinesis / Activity Streams (Step‑by‑Step)
+Enable Database Activity Streams on Aurora cluster.
+Confirm Kinesis stream is created and events are flowing.
+Give DSF Gateway consume access to that stream (IAM role/policy).
+Add Aurora PostgreSQL asset in DSF Hub (same fields as CloudWatch path).
+Check Gateway service for Kinesis path and verify logs.
+```
+✅ Validation Checklist
+```
+Aurora is generating audit logs/events.
+CloudWatch or Kinesis is receiving them.
+DSF Gateway service is active.
+DSF Hub asset shows healthy connection and events are visible.
+```
+🌟 Best Practices
+```
+CloudWatch: Set log retention to avoid runaway storage costs.
+pgAudit: Choose audit scope carefully; too broad = huge log volume.
+Activity Streams: Handle sensitive SQL text responsibly (masking, retention).
+```
