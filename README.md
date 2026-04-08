@@ -2,7 +2,9 @@
 
 **What is DSF Hub?**
 ```
-“DSF Hub is like our central control room. Here we create policies, configure SIEM, DRA, and alerts. All audit logs from data sources across different environments (cloud, hybrid, on‑prem)— come in through gateways. Agent‑based gateways collect logs from servers with agents installed, while agentless gateways collect logs from cloud databases. Both send the data to DSF Hub. From this one place, we can manage and monitor everything together.”
+“DSF Hub is like our central control room. Here we create policies, configure SIEM, DRA, and alerts. All audit logs from data sources across different environments (cloud, hybrid, on‑prem)— come in through gateways.
+Agent‑based gateways collect logs from servers with agents installed, while agentless gateways collect logs from cloud databases.
+Both send the data to DSF Hub. From this one place, we can manage and monitor everything together.”
 --------------------
 Agent‑based (DAM):
 -------------------
