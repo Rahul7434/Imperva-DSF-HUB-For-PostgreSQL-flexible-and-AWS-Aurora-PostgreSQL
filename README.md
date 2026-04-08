@@ -2,13 +2,7 @@
 
 **What is DSF Hub?**
 ```
-In short: DSF Hub is the central brain + data warehouse + single dashboard of Imperva Data Security Fabric (DSF). Audit data coming from agents or agentless gateways is stored here, and policies/settings can be managed from one place.
-Imperva DSF provides unified visibility, control, automation, and insights for data sources across multi‑cloud, hybrid, and on‑prem environments — and at the center of it all is the DSF Hub.
--------------------------------------
-How does it work? (High‑level flow):
--------------------------------------
--Data sources across different environments (cloud, hybrid, on‑prem) generate audit logs.**
--Agents or agentless gateways collect this audit data.**
+“DSF Hub is like our central control room. Here we create policies, configure SIEM, DRA, and alerts. All audit logs from data sources across different environments (cloud, hybrid, on‑prem)— come in through gateways. Agent‑based gateways collect logs from servers with agents installed, while agentless gateways collect logs from cloud databases. Both send the data to DSF Hub. From this one place, we can manage and monitor everything together.”
 --------------------
 Agent‑based (DAM):
 -------------------
