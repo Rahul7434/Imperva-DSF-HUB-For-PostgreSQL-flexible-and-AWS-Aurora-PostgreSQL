@@ -105,5 +105,21 @@ Instead, the Storage Account’s Blob Container is used for checkpointing metada
 The Gateway writes small files there to mark “I’ve read logs up to this point.
 
 **############################################################################################################**
+**Phase 3 — Enable Audit on Each PostgreSQL Flexible Server**
+-Enable/allowlist/load the pgaudit extension on Azure PostgreSQL Flexible Server for audit logging. According to Azure docs, PostgreSQL audit logging is based on pgaudit.
+-Connect to each relevant database and run the command to create the pgaudit extension. Azure documentation specifies that creating the extension is required to use pgaudit.
+-Set pgaudit.log according to your use case — for example, WRITE, or for broader visibility use READ, WRITE, DDL, ROLE classes. Azure docs note that required classes must be specified individually.
+-Configure parameters such as log\_connections, log\_disconnections, log\_duration, log\_statement as needed. Azure docs explain that these standard PostgreSQL logging parameters are useful for security, troubleshooting, and audit visibility, but high-volume logging can impact performance.
 
+Step 3.5 — Verify Audit Logging
+Check whether DB logs are being generated. According to Azure docs, Flexible Server logs are available under the PostgreSQLLogs category.
+
+############################################################################################################**
+Phase 4 — Create Diagnostic Setting for Each Server**
+Step 4.1 — Open Diagnostic Settings on Each PostgreSQL Flexible Server
+In the Azure Portal, go to each Flexible Server resource → Diagnostic Settings. Azure Monitor docs state that diagnostic settings are independent for each resource.
+-Add a diagnostic setting on each server. A resource can have multiple diagnostic settings, but for DSF flow, the Event Hub destination is required.
+-Choose the PostgreSQLLogs category. This is the main category for Azure PostgreSQL Flexible logs.
+-In each server’s diagnostic setting, select the same Event Hub as the destination. This ensures logs from all servers are streamed into one Event Hub. Azure docs confirm that logs can be streamed to Event Hub destinations.
+-Save the diagnostic setting on each servers. Important note: multiple servers =  diagnostic settings, even if the Event Hub is common, because diagnostic settings are resource-specific.
 ```
