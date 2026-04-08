@@ -13,17 +13,17 @@ Imperva DSF provides unified visibility, control, automation, and insights for d
 Imperva Agents are installed on the database servers.
 These agents send logs/events to the Agent Gateway (formerly called DAM Gateway).
 The gateway parses and normalizes the data, then ingests it into the DSF Hub.
-&#x09;**Agentless (Sonar/Agentless Gateway):**
-&#x09;For sources like cloud‑managed databases, the Agentless Gateway collects and enhances audit data.
-&#x09;It then forwards this data directly to the DSF Hub.
+**Agentless (Sonar/Agentless Gateway):**
+For sources like cloud‑managed databases, the Agentless Gateway collects and enhances audit data.
+It then forwards this data directly to the DSF Hub.
 
-&#x20; **-The DSF Hub ingests and stores this data centrally.**
-&#x20; **-Policies, configurations, and security rules are managed from the Hub.**
-&#x09;-Data is stored in the DSF Hub.
-&#x09;-Policies and monitoring configurations are managed through the USC (Unified Settings Console).
-&#x09;-A single dashboard provides unified visibility.
-&#x09;-Optionally, Data Risk Analytics (DRA) can be added — it applies ML‑based behavioral analytics on audit data to generate actionable incidents.
-&#x09;-On‑demand Kibana visualizations and audit search are also available.
+**-The DSF Hub ingests and stores this data centrally.**
+**-Policies, configurations, and security rules are managed from the Hub.**
+-Data is stored in the DSF Hub.
+-Policies and monitoring configurations are managed through the USC (Unified Settings Console).
+-A single dashboard provides unified visibility.
+-Optionally, Data Risk Analytics (DRA) can be added — it applies ML‑based behavioral analytics on audit data to generate actionable incidents.
+-On‑demand Kibana visualizations and audit search are also available.
 So in essence, DSF Hub centralizes all audit data — whether collected via agents or agentless gateways — and provides unified visibility, classification, and control over sensitive information across your enterprise.
 ```
 
