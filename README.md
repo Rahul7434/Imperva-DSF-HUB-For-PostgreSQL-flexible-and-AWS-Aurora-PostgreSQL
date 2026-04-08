@@ -122,4 +122,82 @@ In the Azure Portal, go to each Flexible Server resource → Diagnostic Settings
 -Choose the PostgreSQLLogs category. This is the main category for Azure PostgreSQL Flexible logs.
 -In each server’s diagnostic setting, select the same Event Hub as the destination. This ensures logs from all servers are streamed into one Event Hub. Azure docs confirm that logs can be streamed to Event Hub destinations.
 -Save the diagnostic setting on each servers. Important note: multiple servers =  diagnostic settings, even if the Event Hub is common, because diagnostic settings are resource-specific.
+
+**############################################################################################################**
+
+**Phase 5 — Onboard Assets in DSF**
+Step 5.1 — Create Azure cloud account in USC----> cloud account--->Azure cloud--->Enter details(subscription,sub_id, Select auth mechanism,and the Gateway server.).
+Step 5.1 — Create Azure Event Hub Asset in USC----> Log Aggregator--->Assetname-->Enter detals(subcription name and id of event hub, storage assesskey , event hub assesskey, policy name,event hub access policy, storage container,event hub name , and namespace name and hostname, storage account name, and select parent asset.).
+Step 5.1 — Create datasource Asset in USC----> Datasource--->Name---> Enterdetails(LogicalName, subcription name , id, db hostname, location, auth mechanism password:admin:admin, then select the parent assset.)
+
+-In DSF, create an AZURE EVENTHUB asset. Required details:
+eventhub\_name
+eventhub\_namespace
+azure\_storage\_account
+azure\_storage\_container
+format = Postgresql\_Flexible (DSF 4.15+)
+
+-If using Managed Identity, set auth\_mechanism = azure\_ad in the Event Hub asset. For user-assigned identity, provide user\_identity\_client\_id.
+
+Step 5.3 — Or Use Key-Based Authentication
+\-If not using managed identity, provide:
+eventhub\_access\_policy
+eventhub\_access\_key
+azure\_storage\_secret\_key
+
+Step 5.4 — Create PostgreSQL Flexible Assets
+In DSF, create an AZURE POSTGRESQL FLEXIBLE asset for each database server. Default port is 5432. You’ll need hostname, database\_name, username, and password for DB connection.
+Step 5.5 — Map PostgreSQL Assets to Event Hub Asset
+Map each PostgreSQL Flexible asset to the corresponding Event Hub asset ID (logs\_destination\_asset\_id). This relation is defined in the DSF asset specification.
+
+Step 5.6 — Optional Azure Cloud Account Asset
+If you plan to use discovery for auto-discovering assets, create an AZURE cloud account asset (with managed\_identity, client\_secret, or auth\_file).
+
+
+**############################################################################################################**
+**Phase 6 — Connect Gateway and Start Audit Collection**
+Step 6.1 — Select Gateway in USC / Asset Dashboard
+In DSF, go to the Unified Settings Console (USC) or the asset onboarding flow and select the Gateway. DSF onboarding documentation specifies that when saving a data source, you must assign a Gateway.
+
+Step 6.2 — Save Event Hub / DB Assets
+Save the Event Hub asset and PostgreSQL Flexible assets. DSF docs mention onboarding methods such as USC, Spreadsheet, or APIs.
+
+Step 6.3 — Enable Audit Collection / Connect Gateway
+For each relevant PostgreSQL Flexible asset, run the Enable Audit Collection or Connect Gateway action. In DSF onboarding flow, this step initiates audit log collection.
+**############################################################################################################**
+**Phase 7 — Validation (What to Check After Implementation)**
+Step 7.1 — Verify Logs Are Reaching Event Hub
+Check that diagnostic settings are active on each server and that events are being published to the Event Hub. Since Event Hub is the ingestion endpoint, event traffic should be visible there.
+
+Step 7.2 — Check DSF Gateway Logs
+On the Gateway host, review the following logs:
+$JSONAR\_LOGDIR/eventhub/eventhub.log
+$JSONAR\_LOGDIR/gateway/syslog/postgresql\_flexible\_eventhub.log
+
+Step 7.3 — Verify Gateway Services Status
+Check the status of Gateway services to ensure they are running properly and actively pulling audit logs.
+
+Step 7.4 — Verify Source‑wise Logs in DSF
+DSF doesn’t just ingest logs blindly. It tags each event with metadata like LogicalServerName or \_ResourceId.
+That way, when you look at logs inside DSF, you can tell which PostgreSQL Flexible Server they came from.
+Scenario: Imagine you have 15 branches of a bank, all sending daily transaction reports into one central inbox (Event Hub). DSF adds a label on each report saying “Branch #7” or “Branch #12.” When you review them, you know exactly which branch generated which report.
+
+Step 7.5 — Validate Policy / Monitoring
+The whole point of onboarding into DSF is not just collecting logs, but triggering audit/policy actions.
+After ingestion, you should check if DSF Hub is raising alerts, enforcing policies, or showing audit analysis as expected.
+Scenario: Continuing the bank analogy — it’s not enough that the reports arrive. You also want your compliance team to flag suspicious transactions. DSF is that compliance engine, so you verify that alerts are firing when rules are violated.
+
+Special Notes (Key Reminders)
+One Event Hub is enough for all 15 servers (same type).
+→ Like one central inbox for all branches.
+But 15 diagnostic settings are required (one per server).
+→ Each branch must be configured to send its reports into the inbox.
+One Blob Container is enough (checkpointing per Event Hub).
+→ One shelf in the warehouse for sticky notes, even if 15 branches send reports.
+Event Hub = temporary retention, Storage = checkpoint metadata.
+→ Inbox holds reports for a short time; warehouse shelf holds sticky notes about progress.
+Ideally one Gateway pulls from one Event Hub.
+→ One clerk assigned to one inbox. If multiple clerks try to pull from the same inbox, they might duplicate or miss reports.
+**###########################################################################**
+
 ```
