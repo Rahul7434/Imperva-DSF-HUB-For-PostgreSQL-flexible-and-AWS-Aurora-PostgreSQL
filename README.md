@@ -201,3 +201,25 @@ Ideally one Gateway pulls from one Event Hub.
 **###########################################################################**
 
 ```
+
+🔹 Ultra‑Short Implementation Checklist (Roles Divided)
+Azure Team
+Create Event Hub Namespace
+Create 1 Event Hub
+Create Storage Account + 1 Blob Container
+Assign Managed Identity to Gateway VM
+Grant roles: Event Hubs Data Receiver + Storage Blob Data Contributor
+Open ports 5671, 5672, 443
+
+DBA Team
+Enable pgaudit on servers
+Run CREATE EXTENSION pgaudit;
+Configure pgaudit.log + other log parameters
+On each server, add Diagnostic Setting → PostgreSQLLogs → same Event Hub
+
+DSF Team
+Create AZURE EVENTHUB asset in DSF
+Create AZURE POSTGRESQL FLEXIBLE assets
+Set Event Hub asset format = Postgresql\_Flexible (DSF 4.15+)
+Assign Gateway
+Enable Audit Collection / Connect Gateway
