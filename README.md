@@ -202,3 +202,5 @@ Set Event Hub asset format = Postgresql\_Flexible (DSF 4.15+)
 Assign Gateway
 Enable Audit Collection / Connect Gateway
 ```
+
+                                                              **Aurora PostgreSQL onboarding into DSF Hub.**
