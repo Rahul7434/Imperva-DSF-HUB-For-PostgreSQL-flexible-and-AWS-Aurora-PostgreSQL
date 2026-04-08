@@ -62,3 +62,48 @@ Deployment: AWS/Azure auto‑deploy via Terraform (DSF Kit, Providers \& Modules
                                                         **DSF Hub for Azure PostgreSQL flexible servers (Agentless)**
 
 \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\
+
+```
+Phase 0 — Points to Confirm First**
+The format = Postgresql\_Flexible for Event Hub assets in DSF is supported starting from DSF version 4.15+. So confirming the version first is important.
+
+-In DSF, the database asset type is AZURE POSTGRESQL FLEXIBLE. The onboarding guide and asset specification are different for Flexible Server.
+-According to DSF documentation, a single Event Hub is supported for multiple instances of the same server type.
+
+**############################################################################################################**
+
+**Phase 1 — Create Azure Resources**
+**Step 1.1 — Create Event Hub Namespace**
+-Create an Event Hubs Namespace in Azure. A namespace is a management container that holds one or more Event Hubs.
+-Inside that namespace, create one Event Hub that will receive logs from PostgreSQL Flexible servers. An Event Hub is an append-only event log that temporarily retains events.
+-Configure Event Hub retention properly because Event Hub is not permanent storage. Once retention expires, events are purged. If you need a longer replay window, set retention accordingly.
+-Create a Storage Account. Azure Storage provides a namespace for blobs/files/tables/queues. For DSF, a blob container is required.
+-Inside the Storage Account, create one Blob Container. DSF documentation states that one container per Event Hub is required for import/checkpointing. Since you have one Event Hub, one container is generally sufficient.
+
+**############################################################################################################**
+
+**Phase 2 — Gateway Identity, Roles, Networking:
+-Attach either a system-assigned or user-assigned managed identity to the DSF Agentless Gateway VM. DSF supports Azure AD / managed identity-based authentication.
+-Grant the Gateway’s identity the Azure Event Hubs Data Receiver role so the Gateway can receive/pull logs from Event Hub.
+-Grant the same identity the Storage Blob Data Contributor role so the Gateway can use the storage container for checkpoint/metadata.
+-If the Event Hub Namespace uses selected networks, private endpoints, or firewall restrictions, allow the DSF Gateway subnet/vNet. Networking controls apply at the namespace level.
+-Similarly, allow the DSF Gateway subnet/vNet on the Storage Account, since the Gateway needs HTTPS (port 443) access for storage metadata/checkpointing.
+
+**Step 2.6 — Open Firewall Ports**
+**Allow outbound access from the Gateway:**
+5671 / 5672 → For Event Hubs AMQP / AMQPS
+443 → For Storage Account HTTPS calls
+In the firewall, allow the Event Hub Namespace hostname/FQDN (e.g., namespace.servicebus.windows.net), since Event Hub IPs can be dynamic.
+
+
+The DSF Gateway VM connects to the Event Hub over AMQP/AMQPS protocols.
+That means outbound traffic from the Gateway must be allowed on ports 5671 (secure TLS) and optionally 5672 (non‑TLS).
+You’ve granted the Event Hubs Data Receiver role to the Gateway’s managed identity, so it has permission to pull logs from the Event Hub.
+The Gateway also needs to talk to the Storage Account over HTTPS (port 443).
+This is not for storing the logs themselves — Event Hub already holds them temporarily.
+Instead, the Storage Account’s Blob Container is used for checkpointing metadata.
+The Gateway writes small files there to mark “I’ve read logs up to this point.
+
+**############################################################################################################**
+
+```
